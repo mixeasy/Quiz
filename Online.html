@@ -432,11 +432,17 @@
   <div class="form-block">
       <div class="form-inputs-container">
           <h2>Thông tin thí sinh</h2>
-          <input type="text" id="fullName" placeholder="Nhập họ và tên" autocomplete="off">
+          <input type="text" id="fullName" placeholder="Nhập họ và tên" required autocomplete="off">
           <input type="text" id="className" placeholder="Nhập lớp" required autocomplete="off">
+          <!-- 271 -->
+          <div id="password-section" style="display: none; width: 50%;">
+            <input type="password" id="quizPasswordInput" placeholder="Nhập mật khẩu đề thi" autocomplete="new-password">
+          </div>
+
           <div class="button-group">
-            <button id="startBtn" class="btn-continue" onclick="startQuiz()">Làm tiếp bài cũ (hoặc xem lại bài làm)</button>
-            <button id="newstartBtn" class="btn-refresh" onclick="delete_data_local();startQuiz();">Bắt đầu làm bài</button>
+            <button id="startBtn" class="btn-continue" onclick="checkPasswordAndStart(false)">Làm tiếp bài cũ (hoặc xem lại bài làm)</button>
+            <!-- <button id="newstartBtn" class="btn-refresh" onclick="if(confirm('Bạn có chắc chắn muốn xóa bài cũ để làm lại từ đầu không?')) { delete_data_local(); startQuiz(); }">Bắt đầu làm từ đầu</button>-->
+            <button id="newstartBtn" class="btn-refresh" onclick="checkPasswordAndStart(true)">Bắt đầu làm bài</button> 
           </div>
       </div>
   </div>
@@ -470,8 +476,8 @@
                 <!-- new 26/1 -->
                 <div class="font-control-co-chu" style="margin-top: 10px; background: #fff3e0; border-color: #ffe0b2;">
                     <span class="font-label-co-chu" style="color: #e65100;">Hiển thị:</span>
-                    <button onclick="setDisplayMode('single')" id="btn-mode-single" style="font-size: 12px; padding: 4px 6px; background: #2196F3; color: white;">Từng câu</button>
-                    <button onclick="setDisplayMode('all')" id="btn-mode-all" style="font-size: 12px; padding: 4px 6px;">Tất cả</button>
+                    <button onclick="setDisplayMode('single')" id="btn-mode-single" style="font-size: 15px; padding: 4px 6px; background: #2196F3; color: white;">Từng câu</button>
+                    <button onclick="setDisplayMode('all')" id="btn-mode-all" style="font-size: 15px; padding: 4px 6px;">Tất cả</button>
                 </div>
 
                 <div id="timer"></div>
@@ -495,16 +501,6 @@
         </div>
     </div>
     <script>
-const SECRET_KEY = "GV_TOAN_2026"; 
-
-function simpleHash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash.toString();
-}
 
 // 1. LẤY VÀ KIỂM TRA THAM SỐ URL
 const params = new URLSearchParams(location.search);
@@ -527,6 +523,8 @@ let quizTitle = "Mix Easy_Online"; // Tiêu đề mặc định trên trình duy
 let tenBaiKiemTra = "LUYỆN TẬP TỔNG HỢP"; //Tên tạm thời
 let TIME_LIMIT_MINUTES = 90; // Giá trị mặc định nếu JSON lỗi
 let timeLeft = TIME_LIMIT_MINUTES * 60; // Biến này sẽ được cập nhật lại khi nhấn Start
+//271
+let QUIZ_PASSWORD_ORIGINAL = ""; // Biến lưu mật khẩu từ JSON
 let QUIZ_TIME_LEFT_MODE = "cotinh"; // Mặc định
 let mode_xuatketqua = "HS_DIEM";
 let QUIZ_MODE_CSV = "khongchophepxuatcsv"; // Mặc định là ẩn
@@ -673,6 +671,14 @@ async function loadData() {
                 btnContinue.style.display = "none"; // Ẩn nút làm tiếp nếu không cho lưu local
             }
 
+            // Lấy mật khẩu từ JSON 271
+            QUIZ_PASSWORD_ORIGINAL = data.quiz_info.quiz_password || "";
+            // Nếu có mật khẩu thì hiện ô nhập mật khẩu
+            const pwdSection = document.getElementById("password-section");
+            if (pwdSection && QUIZ_PASSWORD_ORIGINAL !== "") {
+                pwdSection.style.display = "block";
+            }
+
         }
 
         // 🔑 Khởi tạo prefix & localStorage key
@@ -782,6 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('results-panel')?.classList.toggle('open');
     });
 });
+
 function populateIntro() {
     const introTitle = document.getElementById('quiz-intro-title');
     const introTime = document.getElementById('quiz-intro-time');
@@ -871,6 +878,29 @@ function shuffleInPlaceByType(arr, type) {
     for (let i = indexes.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[indexes[i]], arr[indexes[j]]] = [arr[indexes[j]], arr[indexes[i]]];
+    }
+}
+//271
+function checkPasswordAndStart(isNewStart) {
+    const pInput = document.getElementById("quizPasswordInput");
+    const userInput = pInput ? pInput.value.trim() : ""; // Dùng trim() để tránh học sinh gõ thừa dấu cách
+
+    console.log("Mật khẩu nhập:", userInput);
+    console.log("Mật khẩu gốc từ JSON:", QUIZ_PASSWORD_ORIGINAL);
+
+    // CHẶN: Nếu có mật khẩu trong JSON VÀ mật khẩu nhập vào không khớp
+    if (QUIZ_PASSWORD_ORIGINAL !== "" && userInput !== QUIZ_PASSWORD_ORIGINAL) {
+        showCustomAlert("❌ Mật khẩu đề thi không chính xác!");
+        return; // Dừng máy, không chạy tiếp startQuiz
+    }
+
+    // Nếu vượt qua được IF ở trên (nghĩa là đúng mật khẩu hoặc ko có mật khẩu) thì mới chạy dưới đây
+    if (isNewStart) {
+        //if (confirm('Bạn có chắc chắn muốn xóa bài cũ để làm lại từ đầu không?')) {delete_data_local(); startQuiz(); }
+    delete_data_local(); 
+    startQuiz();    
+    } else {
+        startQuiz();
     }
 }
 // Sửa: Thêm logic lưu và tải dữ liệu vào hàm startQuiz() (Đã sửa khóa)
