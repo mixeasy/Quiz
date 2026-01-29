@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -1638,7 +1639,7 @@ function showResults_GV() {
         quizContent.innerHTML = '';
 
         const resultsTitle = document.createElement('h2');
-        resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}`;
+        resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}<br>Số báo danh: ${userInfo.sbd}`;
         quizContent.appendChild(resultsTitle);
 
         // Tạo sẵn chỗ hiển thị tổng điểm (chưa có số)
@@ -1982,7 +1983,7 @@ function showResults_GV_koTL() {
         quizContent.innerHTML = '';
 
         const resultsTitle = document.createElement('h2');
-        resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}`;
+        resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}<br>Số báo danh: ${userInfo.sbd}`;
         quizContent.appendChild(resultsTitle);
         // Tạo sẵn chỗ hiển thị tổng điểm (chưa có số)
         const scoreSummary = document.createElement('h3');
@@ -2274,7 +2275,7 @@ function showResults_HS_DIEM() {
     quizContent.innerHTML = '';
 
     const resultsTitle = document.createElement('h2');
-    resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}`;
+    resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}<br>Số báo danh: ${userInfo.sbd}`;
     quizContent.appendChild(resultsTitle);
     // Tạo sẵn chỗ hiển thị tổng điểm (chưa có số)
     const scoreSummary = document.createElement('h3');
@@ -2547,7 +2548,7 @@ function showResults_HS() {
     quizContent.innerHTML = '';
 
     const resultsTitle = document.createElement('h2');
-    resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}`;
+    resultsTitle.innerHTML = `Họ và tên: ${userInfo.name} - Lớp: ${userInfo.class}<br>Số báo danh: ${userInfo.sbd}`;
     quizContent.appendChild(resultsTitle);
 
     const submissionNote = document.createElement('h3');
@@ -2700,13 +2701,13 @@ function exportCSV() {
         }
     });
 
-    const headers = ["Thời gian nộp","Họ và tên","Lớp","Tên bài kiểm tra", ...originalOrderData.map((_,i)=>"Câu "+(i+1)),"Tổng điểm"];
+    const headers = ["Thời gian nộp","Họ và tên","Lớp","Số báo danh", "Tên bài kiểm tra", ...originalOrderData.map((_,i)=>"Câu "+(i+1)),"Tổng điểm"];
     
     const now = new Date().toLocaleString("vi-VN");
     const totalScore = calcTotalScore(resultsFormatted, typesFormatted);
 
-    const row1 = [now, userInfo.name, userInfo.class, tenBaiKiemTra, ...answersFormatted];
-    const row2 = ["","","","-> Kết quả:", ...resultsFormatted, totalScore];
+    const row1 = [now, userInfo.name, userInfo.class, userInfo.sbd, tenBaiKiemTra, ...answersFormatted];
+    const row2 = ["","","","","Kết quả:", ...resultsFormatted, totalScore];
 
     const rows = [headers, row1, row2];
     const csvContent = "﻿" + rows.map(r => r.map(cell => {
@@ -2719,7 +2720,7 @@ function exportCSV() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `KetQua_${userInfo.name}_${Date.now()}.csv`);
+    link.setAttribute("download", `KetQua_${userInfo.sbd}_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
