@@ -644,7 +644,7 @@ const QUIZ_DISPLAY_CONFIG = "both"
 //271
 let QUIZ_PASSWORD_ORIGINAL = ""; // Biến lưu mật khẩu từ JSON
 let mode_xuatketqua = "HS_DIEM";
-let QUIZ_MODE_PEN = false;
+let QUIZ_ = false;
 let QUIZ_MODE_CSV = false; // Mặc định là ẩn
 let shuffleOptions = {
     "shuffle_q_type1": false, "shuffle_a_type1": false, 
@@ -763,7 +763,7 @@ async function loadData() {
             // 2. Xử lý cho bút và highlight JSON
             if (data.quiz_info.mode_pen) {
                 QUIZ_MODE_PEN = data.quiz_info.mode_pen;
-                console.log("✅ Đã cập nhật cấu hình QUIZ_MODE_PEN", QUIZ_MODE_PEN);
+                //console.log("✅ Đã cập nhật cấu hình QUIZ_MODE_PEN", QUIZ_MODE_PEN);
                 //applyQuizModePen();
             }
 
